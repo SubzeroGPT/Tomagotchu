@@ -1,5 +1,9 @@
 import requests
 import time
+import openai
+
+# Initializing ChatGPT API
+openai.api_key = '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'
 
 class BD2024:
 
@@ -9,7 +13,7 @@ class BD2024:
 
     def banner(self):
         print("################################")
-        print("#         BD2024 - v1.0        #")
+        print("#         BD2024 - v2.0        #")
         print("#  Ethical Hacking Toolkit     #")
         print("################################")
         print()
@@ -17,11 +21,15 @@ class BD2024:
     def set_target(self):
         self.target_url = input("Enter target URL: ")
 
+    def chat_gpt_query(self, query):
+        response = openai.Completion.create(prompt=query, max_tokens=150)
+        return response.choices[0].text.strip()
+
     def zap_spider_url(self):
         print("Spidering target...")
         spider_url = f"{self.base_url}/JSON/spider/action/scan/?url={self.target_url}"
         requests.get(spider_url)
-        time.sleep(10)  # Allow spider to initialize, consider a dynamic wait based on the status endpoint of ZAP API
+        time.sleep(10)
 
     def zap_start_scan(self):
         print("Starting ZAP scan...")
@@ -58,6 +66,8 @@ class BD2024:
             self.zap_start_scan()
             self.zap_scan_status()
             results = self.zap_fetch_results()
+            exploit_info = self.chat_gpt_query("Provide exploit details for: " + str(results))
+            print(exploit_info)
             self.save_report(results)
 
         elif mode == "advanced":
